@@ -1,32 +1,30 @@
 package task2_handler;
 
-import com.amazonaws.AmazonWebServiceResult;
-import com.amazonaws.ResponseMetadata;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import org.json.JSONObject;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import java.util.Map;
 
-public class Handler extends AmazonWebServiceResult<ResponseMetadata> implements RequestHandler<Map<String,String>, String> {
-
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+public class Handler implements RequestHandler<Map<String, String>, String> {
 
     @Override
-    public String handleRequest(Map<String,String> event, Context context) {
+    public String handleRequest(Map<String, String> event, Context context) {
         LambdaLogger logger = context.getLogger();
-        String response = "200 OK";
+        String ip = "N/A";
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 
-        // log execution details
-        logger.log("ENVIRONMENT VARIABLES: " + gson.toJson(System.getenv()));
-        logger.log("CONTEXT: " + gson.toJson(context));
+        JSONObject response = new JSONObject();
+        response.put(event.get("assignment2"), "IP of system is: " + ip);
 
-        // process event
-        logger.log("EVENT: " + gson.toJson(event));
-        logger.log("EVENT TYPE: " + event.getClass().toString());
-
-        return response;
+        return response.toString();
     }
 }
